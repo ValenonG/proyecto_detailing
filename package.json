@@ -1,0 +1,26 @@
+{
+  "name": "proyecto_detailing",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ValenonG/proyecto_detailing.git"
+  },
+  
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ValenonG/proyecto_detailing/issues"
+  },
+  "homepage": "https://github.com/ValenonG/proyecto_detailing#readme",
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}
