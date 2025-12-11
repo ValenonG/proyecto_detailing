@@ -9,6 +9,7 @@ export interface IPersona {
     mail: string;
     cuit?: string;
     tipo: 'Cliente' | 'Empleado' | 'Administrador' | 'Proveedor';
+    isActive: boolean;
 }
 
 const PersonaSchema = new Schema<IPersona>({
@@ -23,7 +24,11 @@ const PersonaSchema = new Schema<IPersona>({
         type: String, 
         required: true, 
         enum: ['Cliente', 'Empleado', 'Administrador', 'Proveedor'] 
-    }
+    },
+    isActive: {
+      type: Boolean,
+      default: true
+    },
 }, { timestamps: true });
 
 
