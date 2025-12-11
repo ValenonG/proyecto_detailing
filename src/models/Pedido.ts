@@ -14,6 +14,7 @@ export interface IPedido {
     costo_total: number;
     estado: 'Pendiente' | 'Recibido' | 'Cancelado';
     items: IDetalleCompra[];
+    isActive: boolean;
 }
 
 const PedidoSchema = new Schema<IPedido>({
@@ -30,7 +31,11 @@ const PedidoSchema = new Schema<IPedido>({
         producto: { type: Schema.Types.ObjectId, ref: 'Producto' },
         cantidad: { type: Number, required: true },
         costo_unitario: { type: Number, required: true }
-    }]
+    }],
+    isActive: {
+      type: Boolean,
+      default: true
+    },
 }, { timestamps: true });
 
 export default model<IPedido>('Pedido', PedidoSchema);
