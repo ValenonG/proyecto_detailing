@@ -24,7 +24,7 @@ const createTarea = async (req: Request, res: Response) => {
 
 const getAllTareas = async (req: Request, res: Response) => {
   try {
-    // Filtro por descripción
+    
     const { descripcion } = req.query;
     let filter = {};
 

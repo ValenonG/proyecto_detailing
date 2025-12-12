@@ -5,6 +5,7 @@ export interface IVehiculo {
     marca: string;
     modelo: string;
     patente?: string;
+    isActive: boolean;
 }
 
 const VehiculoSchema = new Schema<IVehiculo>({
@@ -15,7 +16,11 @@ const VehiculoSchema = new Schema<IVehiculo>({
     },
     marca: { type: String, required: true },
     modelo: { type: String, required: true },
-    patente: { type: String, unique: true }
+    patente: { type: String, unique: true },
+    isActive: {
+      type: Boolean,
+      default: true
+    },
 }, { timestamps: true });
 
 export default model<IVehiculo>('Vehiculo', VehiculoSchema);

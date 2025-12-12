@@ -27,7 +27,7 @@ const createPedido = async (req: Request, res: Response) => {
 
 const getAllPedidos = async (req: Request, res: Response) => {
   try {
-    // Filtro opcional por estado (ej: ?estado=Pendiente)
+    
     const { estado } = req.query;
     let filter = {};
 
@@ -36,9 +36,9 @@ const getAllPedidos = async (req: Request, res: Response) => {
     }
 
     const pedidos = await Pedido.find(filter)
-      .populate('proveedor', 'nombre apellido mail')      // Datos del proveedor
-      .populate('administrador', 'nombre apellido mail')  // Datos del empleado/admin
-      .populate('items.producto', 'nombre precio_venta');  // Datos de cada producto en la lista
+      .populate('proveedor', 'nombre apellido mail')      
+      .populate('administrador', 'nombre apellido mail')   
+      .populate('items.producto', 'nombre precio_venta'); 
 
     res.status(200).json({
       message: "Pedidos fetched successfully",
@@ -70,7 +70,7 @@ const getPedidoById = async (req: Request, res: Response) => {
 const updatePedido = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    // Extraemos todo lo que se puede actualizar
+    
     const { proveedor, administrador, fecha, costo_total, estado, items } = req.body;
     
     const pedido = await Pedido.findByIdAndUpdate(id, { 
