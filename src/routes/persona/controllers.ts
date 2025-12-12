@@ -5,7 +5,7 @@ import Persona from '../../models/Persona';
 
 const registrarPersona = async (req: Request, res: Response) => {
   try {
-    const { email, password, nombre, apellido, dni, tipo } = req.body;
+    const { email, password, nombre, apellido, dni, telefono, direccion, cuit, tipo } = req.body;
 
     const userRecord = await admin.auth().createUser({
       email,
@@ -16,7 +16,10 @@ const registrarPersona = async (req: Request, res: Response) => {
       nombre,
       apellido,
       dni,
-      mail: email,
+      email,
+      telefono,
+      direccion,
+      cuit,
       tipo: tipo || 'Cliente',
       firebaseUid: userRecord.uid,
       isActive: true

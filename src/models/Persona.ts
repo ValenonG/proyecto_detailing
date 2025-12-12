@@ -6,7 +6,7 @@ export interface IPersona {
     telefono?: string;
     dni: string;
     direccion?: string;
-    mail: string;
+    email: string;
     cuit?: string;
     tipo: 'Cliente' | 'Empleado' | 'Administrador' | 'Proveedor';
     isActive: boolean;
@@ -19,7 +19,7 @@ const PersonaSchema = new Schema<IPersona>({
     telefono: { type: String },
     dni: { type: String, required: true, unique: true },
     direccion: { type: String },
-    mail: { type: String, required: true, unique: true },
+    email: { type: String, required: true, unique: true },
     cuit: { type: String },
     tipo: {
         type: String,
