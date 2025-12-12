@@ -1,28 +1,81 @@
 import { Request, Response } from 'express';
-import User from '../../models/Persona';
+import axios from 'axios';
+import admin from '../../firebase';
 import Persona from '../../models/Persona';
 
-const createPersona = async (req: Request, res: Response) => {
+const registrarPersona = async (req: Request, res: Response) => {
   try {
-    const { nombre, apellido, telefono,dni,direccion,mail,cuit,tipo,isActive } = req.body;
+    const { email, password, nombre, apellido, dni, telefono, direccion, cuit, tipo } = req.body;
+
+    const userRecord = await admin.auth().createUser({
+      email,
+      password,
+    });
+
     const persona = new Persona({
       nombre,
       apellido,
-      telefono,
       dni,
+      email,
+      telefono,
       direccion,
-      mail,
       cuit,
-      tipo,
-      isActive
+      tipo: tipo || 'Cliente',
+      firebaseUid: userRecord.uid,
+      isActive: true
     });
+
     await persona.save();
-    res.status(201).json(persona);
-  } catch (error) {
+
+    res.status(201).json({
+      firebaseUser: userRecord,
+      persona
+    });
+  } catch (error: any) {
     res.status(500).json({
-        message: "Error creating persona", error
+      message: "Error al registrar usuario",
+      error: error.message
     });
   }
 };
 
-export default {createPersona};
+const loginConEmailPassword = async (req: Request, res: Response) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({ message: 'Email y contraseña son requeridos' });
+    }
+
+    const apiKey = process.env.FIREBASE_API_KEY;
+
+    if (!apiKey) {
+      return res.status(500).json({ message: 'API Key de Firebase no configurada' });
+    }
+
+    const url = `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${apiKey}`;
+
+    const response = await axios.post(url, {
+      email,
+      password,
+      returnSecureToken: true
+    });
+
+    res.json({
+      idToken: response.data.idToken,
+      refreshToken: response.data.refreshToken,
+      expiresIn: response.data.expiresIn,
+      localId: response.data.localId
+    });
+  } catch (error: any) {
+    res.status(401).json({
+      message: 'Login fallido',
+      error: error.response?.data || error.message
+    });
+  }
+};
+
+export default {
+  registrarPersona,
+  loginConEmailPassword
+};
