@@ -19,6 +19,7 @@ export interface ITrabajo {
     precio_total: number;
     tareas: IDetalleTarea[];      // Usamos las sub-interfaces aquí
     productos_usados: IDetalleProducto[];
+    isActive: boolean;
 }
 
 const TrabajoSchema = new Schema<ITrabajo>({
@@ -43,7 +44,11 @@ const TrabajoSchema = new Schema<ITrabajo>({
     productos_usados: [{
         producto: { type: Schema.Types.ObjectId, ref: 'Producto' },
         cantidad: { type: Number, default: 1 }
-    }]
+    }],
+    isActive: {
+      type: Boolean,
+      default: true
+    },
 }, { timestamps: true });
 
 export default model<ITrabajo>('Trabajo', TrabajoSchema);

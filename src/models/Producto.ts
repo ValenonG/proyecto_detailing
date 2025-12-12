@@ -5,7 +5,8 @@ export interface IProducto {
     proveedor: Types.ObjectId; 
     precio_venta: number;     
     stock_actual: number;
-    stock_minimo: number;    
+    stock_minimo: number;
+    isActive: boolean;
 }
 
 const ProductoSchema = new Schema<IProducto>({
@@ -17,7 +18,11 @@ const ProductoSchema = new Schema<IProducto>({
     },
     precio_venta: { type: Number, required: true },
     stock_actual: { type: Number, default: 0 },
-    stock_minimo: { type: Number, default: 10 } 
+    stock_minimo: { type: Number, default: 10 },
+    isActive: {
+      type: Boolean,
+      default: true
+    },
 }, { timestamps: true });
 
 export default model<IProducto>('Producto', ProductoSchema);
