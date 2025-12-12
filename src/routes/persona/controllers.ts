@@ -1,137 +1,78 @@
 import { Request, Response } from 'express';
+import axios from 'axios';
+import admin from '../../firebase';
 import Persona from '../../models/Persona';
 
-const createPersona = async (req: Request, res: Response) => {
+const registrarPersona = async (req: Request, res: Response) => {
   try {
-    const { nombre, apellido, telefono, dni, direccion, mail, cuit, tipo, isActive } = req.body;
+    const { email, password, nombre, apellido, dni, tipo } = req.body;
+
+    const userRecord = await admin.auth().createUser({
+      email,
+      password,
+    });
+
     const persona = new Persona({
       nombre,
       apellido,
-      telefono,
       dni,
-      direccion,
-      mail,
-      cuit,
-      tipo,
-      isActive
+      mail: email,
+      tipo: tipo || 'Cliente',
+      firebaseUid: userRecord.uid,
+      isActive: true
     });
+
     await persona.save();
-    res.status(201).json(persona);
-  } catch (error) {
-    res.status(500).json({
-      message: 'Error al crear persona', error
-    });
-  }
-};
 
-const getAllPersona = async (req: Request, res: Response) => {
-  try {
-    const personas = await Persona.find({ isActive: true });
-    res.status(200).json(personas);
-  } catch (error) {
-    res.status(500).json({
-      message: 'Error al obtener personas', error
-    });
-  }
-};
-
-const getPersonaById = async (req: Request, res: Response) => {
-  try {
-    const { id } = req.params;
-    const persona = await Persona.findById(id);
-
-    if (!persona) {
-      return res.status(404).json({
-        message: 'Persona no encontrada'
-      });
-    }
-
-    res.status(200).json(persona);
-  } catch (error) {
-    res.status(500).json({
-      message: 'Error al obtener persona', error
-    });
-  }
-};
-
-const updatePersona = async (req: Request, res: Response) => {
-  try {
-    const { id } = req.params;
-    const updateData = req.body;
-
-    const persona = await Persona.findByIdAndUpdate(
-      id,
-      updateData,
-      { new: true, runValidators: true }
-    );
-
-    if (!persona) {
-      return res.status(404).json({
-        message: 'Persona no encontrada'
-      });
-    }
-
-    res.status(200).json(persona);
-  } catch (error) {
-    res.status(500).json({
-      message: 'Error al actualizar persona', error
-    });
-  }
-};
-
-const hardDeletePersona = async (req: Request, res: Response) => {
-  try {
-    const { id } = req.params;
-    const persona = await Persona.findByIdAndDelete(id);
-
-    if (!persona) {
-      return res.status(404).json({
-        message: 'Persona no encontrada'
-      });
-    }
-
-    res.status(200).json({
-      message: 'Persona eliminada exitosamente',
+    res.status(201).json({
+      firebaseUser: userRecord,
       persona
     });
-  } catch (error) {
+  } catch (error: any) {
     res.status(500).json({
-      message: 'Error al eliminar persona', error
+      message: "Error al registrar usuario",
+      error: error.message
     });
   }
 };
 
-const softDeletePersona = async (req: Request, res: Response) => {
+const loginConEmailPassword = async (req: Request, res: Response) => {
   try {
-    const { id } = req.params;
-    const persona = await Persona.findByIdAndUpdate(
-      id,
-      { isActive: false },
-      { new: true }
-    );
+    const { email, password } = req.body;
 
-    if (!persona) {
-      return res.status(404).json({
-        message: 'Persona no encontrada'
-      });
+    if (!email || !password) {
+      return res.status(400).json({ message: 'Email y contraseña son requeridos' });
     }
 
-    res.status(200).json({
-      message: 'Persona desactivada exitosamente',
-      persona
+    const apiKey = process.env.FIREBASE_API_KEY;
+
+    if (!apiKey) {
+      return res.status(500).json({ message: 'API Key de Firebase no configurada' });
+    }
+
+    const url = `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${apiKey}`;
+
+    const response = await axios.post(url, {
+      email,
+      password,
+      returnSecureToken: true
     });
-  } catch (error) {
-    res.status(500).json({
-      message: 'Error al desactivar persona', error
+
+    res.json({
+      idToken: response.data.idToken,
+      refreshToken: response.data.refreshToken,
+      expiresIn: response.data.expiresIn,
+      localId: response.data.localId
+    });
+  } catch (error: any) {
+    res.status(401).json({
+      message: 'Login fallido',
+      error: error.response?.data || error.message
     });
   }
 };
 
 export default {
-  createPersona,
-  getAllPersona,
-  getPersonaById,
-  updatePersona,
-  hardDeletePersona,
-  softDeletePersona
+  registrarPersona,
+  loginConEmailPassword
 };
