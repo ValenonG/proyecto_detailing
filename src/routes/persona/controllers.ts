@@ -22,7 +22,6 @@ const registrarPersona = async (req: Request, res: Response) => {
       cuit,
       tipo: tipo || 'Cliente',
       firebaseUid: userRecord.uid,
-      isActive: true
     });
 
     await persona.save();
