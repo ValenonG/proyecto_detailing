@@ -61,11 +61,18 @@ const loginConEmailPassword = async (req: Request, res: Response) => {
       returnSecureToken: true
     });
 
+    const persona = await Persona.findOne({ firebaseUid: response.data.localId });
+
+    if (!persona) {
+      return res.status(404).json({ message: 'Usuario no encontrado en la base de datos' });
+    }
+
     res.json({
       idToken: response.data.idToken,
       refreshToken: response.data.refreshToken,
       expiresIn: response.data.expiresIn,
-      localId: response.data.localId
+      localId: response.data.localId,
+      persona
     });
   } catch (error: any) {
     res.status(401).json({
