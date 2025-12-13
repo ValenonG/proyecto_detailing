@@ -6,6 +6,10 @@ export const registerValidationSchema = Joi.object({
 		'string.email': `"email" debe tener un formato de correo válido`,
 		'any.required': `"email" es un campo requerido`
 	}),
+	password: Joi.string().required().messages({
+		'string.base': `"password" debe ser de tipo 'texto'`,
+		'any.required': `"password" es un campo requerido`
+	}),
 	nombre: Joi.string().required().messages({
 		'string.base': `"nombre" debe ser de tipo 'texto'`,
 		'any.required': `"nombre" es un campo requerido`
