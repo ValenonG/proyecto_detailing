@@ -1,14 +1,15 @@
 import express from 'express';
 
 import controllers from './controllers';
+import { authenticateFirebase } from '../../middlewares/authenticateFirebase';
 
 const router = express.Router();
 
-router.get('/', controllers.createTrabajo);
-router.get('/all', controllers.getAllTrabajos);
-router.get('/:id', controllers.getTrabajoById);
-router.patch('/:id', controllers.updateTrabajo);
-router.delete('/hard/:id', controllers.hardDeleteTrabajo);
-router.patch('/soft/:id', controllers.softDeleteTrabajo);
+router.get('/', authenticateFirebase, controllers.createTrabajo);
+router.get('/all', authenticateFirebase, controllers.getAllTrabajos);
+router.get('/:id', authenticateFirebase, controllers.getTrabajoById);
+router.patch('/:id', authenticateFirebase, controllers.updateTrabajo);
+router.delete('/hard/:id', authenticateFirebase, controllers.hardDeleteTrabajo);
+router.patch('/soft/:id', authenticateFirebase, controllers.softDeleteTrabajo);
 
 export default router;
