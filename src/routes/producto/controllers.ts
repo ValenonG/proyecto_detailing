@@ -100,4 +100,16 @@ const softDeleteProducto = async (req: Request, res: Response) => {
   }
 };
 
-export default { createProducto,getAllProductos, getProductoById, updateProducto, hardDeleteProducto, softDeleteProducto };
+const getLowStock = async (req: Request, res: Response) => {
+  try {
+    const productos = await Producto.find({
+      $expr: { $lte: ['$stock_actual', '$stock_minimo'] }
+    }).populate('proveedor', 'nombre apellido mail');
+
+    res.status(200).json(productos);
+  } catch (error) {
+    res.status(500).json({ message: "Error al obtener productos con stock bajo", error });
+  }
+};
+
+export default { createProducto, getAllProductos, getProductoById, getLowStock, updateProducto, hardDeleteProducto, softDeleteProducto };
