@@ -36,8 +36,8 @@ const getAllPedidos = async (req: Request, res: Response) => {
     }
 
     const pedidos = await Pedido.find(filter)
-      .populate('proveedor', 'nombre apellido mail')      
-      .populate('administrador', 'nombre apellido mail')   
+      .populate('proveedor', 'nombre apellido email')
+      .populate('administrador', 'nombre apellido email')   
       .populate('items.producto', 'nombre precio_venta'); 
 
     res.status(200).json({

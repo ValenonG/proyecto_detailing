@@ -41,7 +41,7 @@ const getAllTrabajos = async (req: Request, res: Response) => {
     }
 
     const trabajos = await Trabajo.find(filter)
-      .populate('vehiculo', 'marca modelo patente color') 
+      .populate('vehiculo', 'marca modelo patente') 
       .populate('tareas.tarea', 'descripcion tiempo_estimado') 
       .populate('productos_usados.producto', 'nombre precio_venta');
 
@@ -59,7 +59,7 @@ const getTrabajoById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const trabajo = await Trabajo.findById(id)
-      .populate('vehiculo', 'marca modelo patente color')
+      .populate('vehiculo', 'marca modelo patente')
       .populate('tareas.tarea', 'descripcion tiempo_estimado')
       .populate('productos_usados.producto', 'nombre precio_venta');
     
@@ -131,7 +131,7 @@ const getTrabajosByEstado = async (req: Request, res: Response) => {
   try {
     const { estado } = req.params;
     const trabajos = await Trabajo.find({ estado })
-      .populate('vehiculo', 'marca modelo patente color')
+      .populate('vehiculo', 'marca modelo patente')
       .populate('tareas.tarea', 'descripcion tiempo_estimado')
       .populate('productos_usados.producto', 'nombre precio_venta');
 

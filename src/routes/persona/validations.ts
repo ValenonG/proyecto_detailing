@@ -6,8 +6,9 @@ export const registerValidationSchema = Joi.object({
 		'string.email': `"email" debe tener un formato de correo válido`,
 		'any.required': `"email" es un campo requerido`
 	}),
-	password: Joi.string().required().messages({
+	password: Joi.string().min(6).required().messages({
 		'string.base': `"password" debe ser de tipo 'texto'`,
+		'string.min': `"password" debe tener al menos 6 caracteres`,
 		'any.required': `"password" es un campo requerido`
 	}),
 	nombre: Joi.string().required().messages({
@@ -42,8 +43,9 @@ export const loginValidationSchema = Joi.object({
 		'string.email': `"email" debe tener un formato de correo válido`,
 		'any.required': `"email" es un campo requerido`
 	}),
-	password: Joi.string().required().messages({
+	password: Joi.string().min(6).required().messages({
 		'string.base': `"password" debe ser de tipo 'texto'`,
+		'string.min': `"password" debe tener al menos 6 caracteres`,
 		'any.required': `"password" es un campo requerido`
 	})
 });
