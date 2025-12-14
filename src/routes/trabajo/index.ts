@@ -5,8 +5,9 @@ import { authenticateFirebase } from '../../middlewares/authenticateFirebase';
 
 const router = express.Router();
 
-router.get('/', authenticateFirebase, controllers.createTrabajo);
-router.get('/all', authenticateFirebase, controllers.getAllTrabajos);
+router.get('/', authenticateFirebase, controllers.getAllTrabajos);
+router.post('/', authenticateFirebase, controllers.createTrabajo);
+router.get('/estado/:estado', authenticateFirebase, controllers.getTrabajosByEstado);
 router.get('/:id', authenticateFirebase, controllers.getTrabajoById);
 router.patch('/:id', authenticateFirebase, controllers.updateTrabajo);
 router.delete('/hard/:id', authenticateFirebase, controllers.hardDeleteTrabajo);

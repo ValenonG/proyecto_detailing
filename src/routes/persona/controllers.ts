@@ -81,7 +81,76 @@ const loginConEmailPassword = async (req: Request, res: Response) => {
   }
 };
 
+const getAllPersonas = async (req: Request, res: Response) => {
+  try {
+    const personas = await Persona.find();
+    res.status(200).json(personas);
+  } catch (error: any) {
+    res.status(500).json({ message: "Error al obtener personas", error: error.message });
+  }
+};
+
+const getPersonasByTipo = async (req: Request, res: Response) => {
+  try {
+    const { tipo } = req.params;
+    const personas = await Persona.find({ tipo });
+    res.status(200).json(personas);
+  } catch (error: any) {
+    res.status(500).json({ message: "Error al obtener personas por tipo", error: error.message });
+  }
+};
+
+const getPersonaById = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const persona = await Persona.findById(id);
+
+    if (!persona) {
+      return res.status(404).json({ message: "Persona no encontrada" });
+    }
+
+    res.status(200).json(persona);
+  } catch (error: any) {
+    res.status(500).json({ message: "Error al obtener persona", error: error.message });
+  }
+};
+
+const updatePersona = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const persona = await Persona.findByIdAndUpdate(id, req.body, { new: true });
+
+    if (!persona) {
+      return res.status(404).json({ message: "Persona no encontrada" });
+    }
+
+    res.status(200).json(persona);
+  } catch (error: any) {
+    res.status(500).json({ message: "Error al actualizar persona", error: error.message });
+  }
+};
+
+const deletePersona = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const persona = await Persona.findByIdAndDelete(id);
+
+    if (!persona) {
+      return res.status(404).json({ message: "Persona no encontrada" });
+    }
+
+    res.status(200).json({ message: "Persona eliminada correctamente" });
+  } catch (error: any) {
+    res.status(500).json({ message: "Error al eliminar persona", error: error.message });
+  }
+};
+
 export default {
   registrarPersona,
-  loginConEmailPassword
+  loginConEmailPassword,
+  getAllPersonas,
+  getPersonasByTipo,
+  getPersonaById,
+  updatePersona,
+  deletePersona
 };
