@@ -5,7 +5,7 @@ import { authenticateFirebase } from '../../middlewares/authenticateFirebase';
 
 const router = express.Router();
 
-router.get('/', authenticateFirebase, controllers.createPedido);
+router.post('/', authenticateFirebase, controllers.createPedido);
 router.get('/all', authenticateFirebase, controllers.getAllPedidos);
 router.get('/:id', authenticateFirebase, controllers.getPedidoById);
 router.patch('/:id', authenticateFirebase, controllers.updatePedido);
