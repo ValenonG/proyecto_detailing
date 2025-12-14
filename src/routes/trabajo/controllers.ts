@@ -127,11 +127,26 @@ const softDeleteTrabajo = async (req: Request, res: Response) => {
   }
 };
 
-export default { 
-    createTrabajo, 
-    getAllTrabajos, 
-    getTrabajoById, 
-    updateTrabajo, 
-    hardDeleteTrabajo, 
-    softDeleteTrabajo 
+const getTrabajosByEstado = async (req: Request, res: Response) => {
+  try {
+    const { estado } = req.params;
+    const trabajos = await Trabajo.find({ estado })
+      .populate('vehiculo', 'marca modelo patente color')
+      .populate('tareas.tarea', 'descripcion tiempo_estimado')
+      .populate('productos_usados.producto', 'nombre precio_venta');
+
+    res.status(200).json(trabajos);
+  } catch (error: any) {
+    res.status(500).json({ message: "Error al obtener trabajos por estado", error: error.message });
+  }
+};
+
+export default {
+    createTrabajo,
+    getAllTrabajos,
+    getTrabajoById,
+    getTrabajosByEstado,
+    updateTrabajo,
+    hardDeleteTrabajo,
+    softDeleteTrabajo
 };
