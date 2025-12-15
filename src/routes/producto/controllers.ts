@@ -1,7 +1,6 @@
 import { Request, Response } from 'express';
 import Producto from '../../models/Producto';
 
-
 const createProducto = async (req: Request, res: Response) => {
   try {
     const { nombre, proveedor, precio_venta, stock_actual,stock_minimo,isActive} = req.body;
@@ -19,16 +18,15 @@ const createProducto = async (req: Request, res: Response) => {
     res.status(201).json(producto);
   } catch (error) {
     res.status(500).json({
-        message: "Error creating producto", error
+      message: "Error creating producto", error
     });
   }
 };
 
-
 const getAllProductos = async (req: Request, res: Response) => {
   try {
     const { nombre } = req.query;
-    let filter = {};
+    let filter: any = { isActive: true };
 
     if (nombre) {
       filter = { nombre: { $regex: nombre as string, $options: 'i' } };
@@ -103,6 +101,7 @@ const softDeleteProducto = async (req: Request, res: Response) => {
 const getLowStock = async (req: Request, res: Response) => {
   try {
     const productos = await Producto.find({
+      isActive: true, 
       $expr: { $lte: ['$stock_actual', '$stock_minimo'] }
     }).populate('proveedor', 'nombre apellido mail');
 
