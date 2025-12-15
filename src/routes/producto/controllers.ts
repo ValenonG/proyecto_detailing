@@ -102,7 +102,7 @@ const getLowStock = async (req: Request, res: Response) => {
   try {
     const productos = await Producto.find({
       isActive: true, 
-      $expr: { $lte: ['$stock_actual', '$stock_minimo'] }
+      $expr: { $lt: ['$stock_actual', '$stock_minimo'] }
     }).populate('proveedor', 'nombre apellido email');
 
     res.status(200).json(productos);
