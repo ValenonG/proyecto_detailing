@@ -3,13 +3,13 @@ import Trabajo from '../../models/Trabajo';
 
 const createTrabajo = async (req: Request, res: Response) => {
   try {
-    const { 
-      vehiculo, 
-      estado, 
-      observaciones, 
-      precio_total, 
-      tareas, 
-      productos_usados 
+    const {
+      vehiculo,
+      estado,
+      observaciones,
+      precio_total,
+      tareas,
+      productos_usados
     } = req.body;
 
     const trabajo = new Trabajo({
@@ -41,9 +41,16 @@ const getAllTrabajos = async (req: Request, res: Response) => {
     }
 
     const trabajos = await Trabajo.find(filter)
-      .populate('vehiculo', 'marca modelo patente color') 
-      .populate('tareas.tarea', 'descripcion tiempo_estimado') 
-      .populate('productos_usados.producto', 'nombre precio_venta');
+      .populate({
+        path: 'vehiculo',
+        select: 'marca modelo patente cliente',
+        populate: {
+          path: 'cliente',
+          select: 'nombre apellido email'
+        }
+      })
+      .populate('tareas.tarea', 'descripcion tiempo_estimado')
+      .populate('productos_usados.producto', 'nombre precio_venta stock_actual');
 
     res.status(200).json({
       message: "Trabajos fetched successfully",
@@ -59,10 +66,17 @@ const getTrabajoById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const trabajo = await Trabajo.findById(id)
-      .populate('vehiculo', 'marca modelo patente color')
+      .populate({
+        path: 'vehiculo',
+        select: 'marca modelo patente cliente',
+        populate: {
+          path: 'cliente',
+          select: 'nombre apellido email'
+        }
+      })
       .populate('tareas.tarea', 'descripcion tiempo_estimado')
-      .populate('productos_usados.producto', 'nombre precio_venta');
-    
+      .populate('productos_usados.producto', 'nombre precio_venta stock_actual');
+
     if (!trabajo) {
       return res.status(404).json({ message: "Trabajo not found" });
     }
@@ -75,24 +89,51 @@ const getTrabajoById = async (req: Request, res: Response) => {
 const updateTrabajo = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const { 
-      vehiculo, 
-      estado, 
-      observaciones, 
-      precio_total, 
-      tareas, 
-      productos_usados 
+    const {
+      vehiculo,
+      estado,
+      observaciones,
+      precio_total,
+      tareas,
+      productos_usados
     } = req.body;
 
-    const trabajo = await Trabajo.findByIdAndUpdate(
-      id, 
-      { vehiculo, estado, observaciones, precio_total, tareas, productos_usados }, 
-      { new: true }
-    );
+    // Obtener el trabajo actual para comparar estados
+    const trabajoActual = await Trabajo.findById(id);
 
-    if (!trabajo) {
+    if (!trabajoActual) {
       return res.status(404).json({ message: "Trabajo not found" });
     }
+
+    // Si el estado cambia a "Terminado", restar stock de productos
+    if (estado === 'Terminado' && trabajoActual.estado !== 'Terminado') {
+      const Producto = require('../../models/Producto').default;
+
+      for (const prodUsado of trabajoActual.productos_usados) {
+        await Producto.findByIdAndUpdate(
+          prodUsado.producto,
+          { $inc: { stock_actual: -prodUsado.cantidad } },
+          { new: true }
+        );
+      }
+    }
+
+    const trabajo = await Trabajo.findByIdAndUpdate(
+      id,
+      { vehiculo, estado, observaciones, precio_total, tareas, productos_usados },
+      { new: true }
+    )
+      .populate({
+        path: 'vehiculo',
+        select: 'marca modelo patente cliente',
+        populate: {
+          path: 'cliente',
+          select: 'nombre apellido email'
+        }
+      })
+      .populate('tareas.tarea', 'descripcion tiempo_estimado')
+      .populate('productos_usados.producto', 'nombre precio_venta stock_actual');
+
     res.status(200).json(trabajo);
   } catch (error: any) {
     res.status(500).json({ message: "Error updating trabajo", error: error.message });
@@ -131,9 +172,16 @@ const getTrabajosByEstado = async (req: Request, res: Response) => {
   try {
     const { estado } = req.params;
     const trabajos = await Trabajo.find({ estado })
-      .populate('vehiculo', 'marca modelo patente color')
+      .populate({
+        path: 'vehiculo',
+        select: 'marca modelo patente cliente',
+        populate: {
+          path: 'cliente',
+          select: 'nombre apellido email'
+        }
+      })
       .populate('tareas.tarea', 'descripcion tiempo_estimado')
-      .populate('productos_usados.producto', 'nombre precio_venta');
+      .populate('productos_usados.producto', 'nombre precio_venta stock_actual');
 
     res.status(200).json(trabajos);
   } catch (error: any) {
@@ -142,11 +190,11 @@ const getTrabajosByEstado = async (req: Request, res: Response) => {
 };
 
 export default {
-    createTrabajo,
-    getAllTrabajos,
-    getTrabajoById,
-    getTrabajosByEstado,
-    updateTrabajo,
-    hardDeleteTrabajo,
-    softDeleteTrabajo
+  createTrabajo,
+  getAllTrabajos,
+  getTrabajoById,
+  getTrabajosByEstado,
+  updateTrabajo,
+  hardDeleteTrabajo,
+  softDeleteTrabajo
 };
