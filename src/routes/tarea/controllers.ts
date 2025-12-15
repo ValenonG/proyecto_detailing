@@ -24,7 +24,7 @@ const createTarea = async (req: Request, res: Response) => {
 
 const getAllTareas = async (req: Request, res: Response) => {
   try {
-    
+
     const { descripcion } = req.query;
     let filter = {};
 
@@ -48,7 +48,7 @@ const getTareaById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const tarea = await Tarea.findById(id);
-    
+
     if (!tarea) {
       return res.status(404).json({ message: "Tarea not found" });
     }
@@ -64,8 +64,8 @@ const updateTarea = async (req: Request, res: Response) => {
     const { descripcion, precio, tiempo_estimado } = req.body;
 
     const tarea = await Tarea.findByIdAndUpdate(
-      id, 
-      { descripcion, precio, tiempo_estimado }, 
+      id,
+      { descripcion, precio, tiempo_estimado },
       { new: true }
     );
 
@@ -95,22 +95,40 @@ const hardDeleteTarea = async (req: Request, res: Response) => {
 const softDeleteTarea = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const tarea = await Tarea.findByIdAndUpdate(id, { isActive: false }, { new: true });
 
-    if (!tarea) {
+    // Primero obtenemos la tarea para conocer su estado actual
+    const tareaActual = await Tarea.findById(id);
+
+    if (!tareaActual) {
       return res.status(404).json({ message: "Tarea not found" });
     }
-    res.status(200).json({ message: "Tarea soft-deleted successfully" });
+
+    // Toggle: invertimos el estado actual
+    const nuevoEstado = !tareaActual.isActive;
+    const tarea = await Tarea.findByIdAndUpdate(
+      id,
+      { isActive: nuevoEstado },
+      { new: true }
+    );
+
+    const mensaje = nuevoEstado
+      ? "Tarea activada successfully"
+      : "Tarea desactivada successfully";
+
+    res.status(200).json({
+      message: mensaje,
+      data: tarea
+    });
   } catch (error: any) {
-    res.status(500).json({ message: "Error soft-deleting tarea", error: error.message });
+    res.status(500).json({ message: "Error toggling tarea status", error: error.message });
   }
 };
 
-export default { 
-    createTarea, 
-    getAllTareas, 
-    getTareaById, 
-    updateTarea, 
-    hardDeleteTarea, 
-    softDeleteTarea 
+export default {
+  createTarea,
+  getAllTareas,
+  getTareaById,
+  updateTarea,
+  hardDeleteTarea,
+  softDeleteTarea
 };
